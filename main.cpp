@@ -4,8 +4,7 @@
 
 using namespace std;
 
-int main()
-{
+int main(){
 	string foodName;
 	string cashierNotes;
 	char itemCode;
@@ -24,26 +23,32 @@ int main()
 	cin >> unitPrice;
 	cout << "Membership Active: (1/0)" << endl;
 	cin >> isMember;
+	
+	cout << "\n" << "Receipt\n--------------------------------------------------------\n"
+		<< left << setw(15) <<"Name"
+		<< setw(15) << "Item Code"
+		<< setw(15) << "Quantity"
+		<< setw(15) << "Unit Price"
+		<< setw(15) << "Membership\n" << endl;
 
-	cout << "\n" << "Receipt\n------------\n"
-		<< left << setw(15) << "Name: " << foodName << "\n"
-		<< left << setw(15) << "Item Code: " << itemCode << "\n"
-		<< left << setw(15) << "Item Quantity: " << itemQuantity << "\n";
+	cout << right << foodName
+		<< setw(15) << itemCode
+		<< setw(15) << itemQuantity;
 
-	if (isMember) {
-		cout << left << setw(15) << "Membership" << "Yes" << "\n";
-		unitPrice = unitPrice * (1 - discount);
+	if (isMember){
+		cout << right << setw(14) << "$" << fixed << setprecision(2) << unitPrice * (1 - discount)
+			 << right << setw(15) << "Yes\n";
 	}
+
 	else {
-		cout << left << setw(15) << "Membership" << "No" << "\n";
+		cout << right << "$" << setw(14) << fixed << setprecision(2) << unitPrice
+			 << right << setw(15) << "No\n";
 	}
-
-	cout << left << setw(15) << "Unit Price:" << "$" << fixed << setprecision(2) << unitPrice << "\n";
 
 	cout << "\nEnter Cashier Notes: ";
 	cin.ignore();
 	getline(cin, cashierNotes);
-	cout << "\n" << left << "Audit\n------------" << endl;
+	cout << "\n" << left << "Audit\n--------------------------------------------------------" << endl;
 
 	cout << left << setw(15) << "Name"
 		<< setw(15) << "Item"
