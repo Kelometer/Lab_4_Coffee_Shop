@@ -1,26 +1,78 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 
 int main(){
-	string foodName;
-	string cashierNotes;
-	char itemCode;
-	int itemQuantity;
-	double discount = 0.1;
-	double unitPrice;
+	string foodName,
+		   cashierNotes,
+		   itemSize;
+	int itemCode,
+		itemQuantity;
+	double discount = 0.1,
+		unitPrice;
 	bool isMember;
+	int spacer = 20;
+// item options
+	string item_one = "A. Lemon Energizer",
+		item_two = "B. Cold Brew",
+		item_three = "C. Vanilla Latte",
+		item_four = "D. Iced Macchiato";
+	double price_one = 4.50,
+		price_two = 3.00,
+		price_three = 4.00,
+		price_four = 4.00;
 
-	cout << "Enter in a food name: " << endl;
-	getline(cin, foodName);
+	double med_size = 1.00,
+		large_size = 2.00;
+
+	cout << left << setw(spacer) << "Drink"
+		<< setw(spacer) << "Small"
+		<< setw(spacer) << "Medium"
+		<< setw(spacer) << "Large\n" << endl;
+
+	cout << left << setw(spacer) << item_one
+		<< setw(spacer) << fixed << setprecision(2) << price_one
+		<< setw(spacer) << fixed << setprecision(2) << price_one + med_size
+		<< setw(spacer) << fixed << setprecision(2) << price_one + large_size
+		<< endl;
+
+	cout << left << setw(spacer) << item_two
+		<< setw(spacer) << fixed << setprecision(2) << price_two
+		<< setw(spacer) << fixed << setprecision(2) << price_two + med_size
+		<< setw(spacer) << fixed << setprecision(2) << price_two + large_size
+		<< endl;
+
+	cout << left << setw(spacer) << item_three
+		<< setw(spacer) << fixed << setprecision(2) << price_three
+		<< setw(spacer) << fixed << setprecision(2) << price_three + med_size
+		<< setw(spacer) << fixed << setprecision(2) << price_three + large_size
+		<< endl;
+
+	cout << left << setw(spacer) << item_four
+		<< setw(spacer) << fixed << setprecision(2) << price_four
+		<< setw(spacer) << fixed << setprecision(2) << price_four + med_size
+		<< setw(spacer) << fixed << setprecision(2) << price_four + large_size
+		<< setw(spacer) << endl;
+
+
+
+
+
+
+
+
+
+
+
 	cout << "Enter in an item code (one character only): " << endl;
 	cin >> itemCode;
+	cout << "Enter in a size (S, M, L): " << endl;
+	cin >> itemSize
 	cout << "Enter in a quantity: " << endl;
 	cin >> itemQuantity;
-	cout << "Enter a price for the item: " << endl;
-	cin >> unitPrice;
 	cout << "Membership Active: (1/0)" << endl;
 	cin >> isMember;
 	
