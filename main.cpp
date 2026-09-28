@@ -5,21 +5,22 @@
 
 using namespace std;
 
-int main(){
+int main() {
 	string foodName,
-		   cashierNotes,
-		   itemSize;
+		cashierNotes,
+		itemSize;
 	int itemCode,
 		itemQuantity;
 	double discount = 0.1,
 		unitPrice;
 	bool isMember;
 	int spacer = 20;
-// item options
+	// item options
 	string item_one = "A. Lemon Energizer",
 		item_two = "B. Cold Brew",
 		item_three = "C. Vanilla Latte",
 		item_four = "D. Iced Macchiato";
+
 	double price_one = 4.50,
 		price_two = 3.00,
 		price_three = 4.00,
@@ -27,6 +28,10 @@ int main(){
 
 	double med_size = 1.00,
 		large_size = 2.00;
+	// tax options
+	double arkansas = 0.065,
+		faulkner = 0.05,
+		conway = 0.02125;
 
 	cout << left << setw(spacer) << "Drink"
 		<< setw(spacer) << "Small"
@@ -57,27 +62,19 @@ int main(){
 		<< setw(spacer) << fixed << setprecision(2) << price_four + large_size
 		<< setw(spacer) << endl;
 
-
-
-
-
-
-
-
-
-
-
 	cout << "Enter in an item code (one character only): " << endl;
 	cin >> itemCode;
 	cout << "Enter in a size (S, M, L): " << endl;
-	cin >> itemSize
+	cin >> itemSize;
 	cout << "Enter in a quantity: " << endl;
 	cin >> itemQuantity;
 	cout << "Membership Active: (1/0)" << endl;
 	cin >> isMember;
-	
+
+	// receipt start
+
 	cout << "\n" << "Receipt\n--------------------------------------------------------\n"
-		<< left << setw(15) <<"Name"
+		<< left << setw(15) << "Name"
 		<< setw(15) << "Item Code"
 		<< setw(15) << "Quantity"
 		<< setw(15) << "Unit Price"
@@ -87,15 +84,34 @@ int main(){
 		<< setw(15) << itemCode
 		<< setw(15) << itemQuantity;
 
-	if (isMember){
+	if (isMember) {
 		cout << right << setw(14) << "$" << fixed << setprecision(2) << unitPrice * (1 - discount)
-			 << right << setw(15) << "Yes\n";
+			<< right << setw(15) << "Yes\n";
 	}
 
 	else {
 		cout << right << "$" << setw(14) << fixed << setprecision(2) << unitPrice
-			 << right << setw(15) << "No\n";
+			<< right << setw(15) << "No\n";
 	}
+
+	// receipt end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// audit
 
 	cout << "\nEnter Cashier Notes: ";
 	cin.ignore();
