@@ -41,7 +41,12 @@ static void tipFix(double& tip) {
 		tip = 0.00;
 	}
 }
-
+static double displayDiscountCheck(double discount, double price, double tax, bool status) {
+	if (status)
+		price = price - (price * discount);
+	price = price * (1 + tax);
+	return price;
+}
 int main() {
 	string cashierNotes;
 	vector <char> itemCode = { 'A','B','C','D','E' },
@@ -124,8 +129,8 @@ int main() {
 				cout << left << "\nCannot checkout with zero items.\n";
 				exit(1);
 			}
-			indexCheck(reqCode, itemCode);
 
+			indexCheck(reqCode, itemCode);
 			reqCodeIndexMatch(reqCode, itemCode, itemIndex, codeRecord);
 
 			cout << left << setw(spacer) << "Size:";
@@ -172,7 +177,7 @@ int main() {
 			userSubtotal += priceRecord[i] * quantityRecord[i]; 
 		}
 
-		cout << left << "\nPayment Receipt for Customer: " << userName << '.\n' << lineLong << "\n"
+		cout << left << "\nPayment Receipt for Customer: " << userName << "\n" << lineLong << "\n"
 			<< left << setw(spacer) << "Item Name"
 			<< setw(spacer) << "Item Size"
 			<< setw(spacer) << "Quantity"
@@ -186,23 +191,21 @@ int main() {
 			totalOrders += quantityRecord[i];
 		}
 
-		cout << left << setw(spacer) << "\nMembership" << setw(spacer) << (isMember ? "Yes" : "No")
-			<< setw(spacer) << "\nSubtotal" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal
-			<< setw(spacer) << "\nSales Tax" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal * taxTotal;
+		cout << left << setw(spacer) << "\nMembership:" << setw(spacer) << (isMember ? "Yes" : "No")
+			<< setw(spacer) << "\nSubtotal:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal
+			<< setw(spacer) << "\nSales Tax:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal * taxTotal;
 		if (isMember) {
-			cout << left << setw(spacer-1) << "\nDiscount" << '-' << "$"  << setw(spacer - 2) << fixed << setprecision(2) << userSubtotal * discount;
-			cout << left << setw(spacer) << "\nTotal" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal * (1 + taxTotal) - (userSubtotal *discount) << "\n" << endl;
+			cout << left << setw(spacer - 1) << "\nDiscount:" << '-' << "$" << setw(spacer - 2) << fixed << setprecision(2) << userSubtotal * discount;
 		}
-		else {
-			cout << left << setw(spacer) << "\nTotal" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal * (1 + taxTotal) << "\n" << endl;
-		}
+		cout << left << setw(spacer) << "\nTotal:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) << "\n" << endl;
+		
 
 		// tax menu
 		cout << left << setw(bigSpace) << "Sales Tax Information" << setw(spacer) << "Percentage" << "Amount\n" << lineLong << endl;
 		for (int i = 0; i < 3; i++) {
 			cout << left << setw(bigSpace) << taxName[i]
-				<< fixed << setprecision(2) << (100 * taxAmount[i]) << setw(spacer - 4) << "%"
-				<< "$" << fixed << setprecision(2) << userSubtotal * taxAmount[i] << endl;
+				<< fixed << setprecision(3) << (100 * taxAmount[i]) << setw(spacer - 5) << "%"
+				<< "$" << fixed << setprecision(2) << displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) * taxAmount[i] << endl;
 		}
 
 		// tip menu
@@ -211,8 +214,8 @@ int main() {
 
 		for (int i = 0; i < tipAmount.size() + 1; i++) {
 			if (i <= tipAmount.size() - 1) {
-				cout << left << itemCode[i] << ". " << 100 * tipAmount[i] << "%" 
-					 << setw(spacer) << "$" << fixed << setprecision(2) << userSubtotal + (userSubtotal * tipAmount[i]) << endl;
+				cout << left << itemCode[i] << ". " << 100 * tipAmount[i] << setw(spacer-8) << "%" 
+					 << "$" << fixed << setprecision(2) << displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) + (userSubtotal * tipAmount[i]) << endl;
 			}
 			else {
 				cout << left << itemCode[i] << setw(2) << "." << "Other Amount" << endl;
@@ -245,18 +248,21 @@ int main() {
 		}
 
 		tipFix(tipMultiplier);
-		if (isMember) {
-			userTotal = (userSubtotal * tipMultiplier) + (userSubtotal * (1 + taxTotal)) - (userSubtotal * discount);
-		}
-		else {
-			userTotal = (userSubtotal * tipMultiplier) + (userSubtotal * (1 + taxTotal));
-		}
-		
+
+		userTotal = displayDiscountCheck(discount, userSubtotal, taxTotal, isMember);
+		double basePrice = isMember ? (userSubtotal - (userSubtotal * discount)) : userSubtotal;
+		userTotal += basePrice * tipMultiplier;
+				
 		userPoints = floor(userTotal / 3);
 
-		cout << left << setw(spacer-1) << "Total Price:" << "$" << fixed << setprecision(2) << userTotal << endl;
-		cout << left << setw(spacer) << "Loyalty Points:" << string(userPoints,'*') << endl;
-			
+		cout << left << setw(spacer) << "\nTotal:" << "$" << fixed << setprecision(2) << userTotal << endl;
+		cout << left << setw(spacer) << "Loyalty Points:";
+		if (userPoints > 0) {
+			cout << string(userPoints, '*') << endl;
+		}
+		else {
+			cout << "None" << endl;
+		}
 		totalCustomers ++;
 		grandTotalSales += userTotal;
 		
@@ -269,7 +275,7 @@ int main() {
 			break;
 		}
 		else {
-			cout << endl;
+			cout << "\n" << string(3, '\n') << lineLong << "\n" << endl;
 		}
 	}
 	
@@ -278,9 +284,9 @@ int main() {
 		getline(cin, cashierNotes);
 		
 		cout << left << "\n" << lineShort << "\nDaily Shop Audit\n" << lineShort << "\n" << endl;
-		cout << left << setw(bigSpace) << "Total Customers:" << totalCustomers
-		<< setw(bigSpace) << "\nItems Sold:" << totalOrders
-		<< setw(bigSpace - 1) << "\nGrand Total Sales:" << '$' << fixed << setprecision(2) << grandTotalSales << endl;
-		 
+		cout << left << setw(bigSpace) << "Total Customers:" << right << totalCustomers << endl;
+		cout << left << setw(bigSpace) << "Items Sold:" << right << totalOrders << endl;
+		cout << left << setw(bigSpace - 1) << "Grand Total Sales:" << right << '$' << fixed << setprecision(2) << grandTotalSales << endl;
+
 		return 0;
 }
