@@ -5,7 +5,7 @@
 #include <vector>
 
 using namespace std;
-// found a way to merge the size and char index checker
+
 static void lowerCaseFix(char& Char) {
 	if (islower(Char)) {
 		Char = Char - 32;
@@ -24,7 +24,7 @@ static void indexCheck(char& reqChar, vector <char>& code) {
 		exit(1);
 	}
 }
-static void reqCodeIndexMatch(char& reqChar, vector <char> &code, int& index, vector <int>& reqList) {
+static void reqCodeIndexMatch(char& reqChar, vector <char>& code, int& index, vector <int>& reqList) {
 	for (int i = 0; i < code.size(); i++) {
 		if (code[i] == reqChar) {
 			index = i;
@@ -43,7 +43,7 @@ static void tipFix(double& tip) {
 }
 static double displayDiscountCheck(double discount, double price, double tax, bool status) {
 	if (status)
-		price = price - (price * discount);
+		price = price * (1 - discount);
 	price = price * (1 + tax);
 	return price;
 }
@@ -174,7 +174,7 @@ int main() {
 			isMember = true;
 		}
 		for (int i = 0; i < priceRecord.size(); i++) {
-			userSubtotal += priceRecord[i] * quantityRecord[i]; 
+			userSubtotal += priceRecord[i] * quantityRecord[i];
 		}
 
 		cout << left << "\nPayment Receipt for Customer: " << userName << "\n" << lineLong << "\n"
@@ -198,7 +198,7 @@ int main() {
 			cout << left << setw(spacer - 1) << "\nDiscount:" << '-' << "$" << setw(spacer - 2) << fixed << setprecision(2) << userSubtotal * discount;
 		}
 		cout << left << setw(spacer) << "\nTotal:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) << "\n" << endl;
-		
+
 
 		// tax menu
 		cout << left << setw(bigSpace) << "Sales Tax Information" << setw(spacer) << "Percentage" << "Amount\n" << lineLong << endl;
@@ -214,8 +214,8 @@ int main() {
 
 		for (int i = 0; i < tipAmount.size() + 1; i++) {
 			if (i <= tipAmount.size() - 1) {
-				cout << left << itemCode[i] << ". " << 100 * tipAmount[i] << setw(spacer-8) << "%" 
-					 << "$" << fixed << setprecision(2) << displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) + (userSubtotal * tipAmount[i]) << endl;
+				cout << left << itemCode[i] << ". " << 100 * tipAmount[i] << setw(spacer - 8) << "%"
+					<< "$" << fixed << setprecision(2) << displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) + (userSubtotal * tipAmount[i]) << endl;
 			}
 			else {
 				cout << left << itemCode[i] << setw(2) << "." << "Other Amount" << endl;
@@ -246,13 +246,9 @@ int main() {
 			cout << "Incorrect Option Entered.";
 			exit(1);
 		}
-
 		tipFix(tipMultiplier);
 
-		userTotal = displayDiscountCheck(discount, userSubtotal, taxTotal, isMember);
-		double basePrice = isMember ? (userSubtotal - (userSubtotal * discount)) : userSubtotal;
-		userTotal += basePrice * tipMultiplier;
-				
+		userTotal = displayDiscountCheck(discount, userSubtotal, taxTotal, isMember) * (1 + tipMultiplier);
 		userPoints = floor(userTotal / 3);
 
 		cout << left << setw(spacer) << "\nTotal:" << "$" << fixed << setprecision(2) << userTotal << endl;
@@ -263,9 +259,9 @@ int main() {
 		else {
 			cout << "None" << endl;
 		}
-		totalCustomers ++;
+		totalCustomers++;
 		grandTotalSales += userTotal;
-		
+
 		cout << left << setw(bigSpace) << "\nNew Customer (Y/N):";
 		cin >> reqCode;
 		lowerCaseFix(reqCode);
@@ -278,15 +274,15 @@ int main() {
 			cout << "\n" << string(3, '\n') << lineLong << "\n" << endl;
 		}
 	}
-	
-	cout << "\nEnter Cashier Notes: ";
-		cin.ignore();
-		getline(cin, cashierNotes);
-		
-		cout << left << "\n" << lineShort << "\nDaily Shop Audit\n" << lineShort << "\n" << endl;
-		cout << left << setw(bigSpace) << "Total Customers:" << right << totalCustomers << endl;
-		cout << left << setw(bigSpace) << "Items Sold:" << right << totalOrders << endl;
-		cout << left << setw(bigSpace - 1) << "Grand Total Sales:" << right << '$' << fixed << setprecision(2) << grandTotalSales << endl;
 
-		return 0;
+	cout << "\nEnter Cashier Notes: ";
+	cin.ignore();
+	getline(cin, cashierNotes);
+
+	cout << left << "\n" << lineShort << "\nDaily Shop Audit\n" << lineShort << "\n" << endl;
+	cout << left << setw(bigSpace) << "Total Customers:" << right << totalCustomers << endl;
+	cout << left << setw(bigSpace) << "Items Sold:" << right << totalOrders << endl;
+	cout << left << setw(bigSpace - 1) << "Grand Total Sales:" << right << '$' << fixed << setprecision(2) << grandTotalSales << endl;
+
+	return 0;
 }
