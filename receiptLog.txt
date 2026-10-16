@@ -1,0 +1,17 @@
+----------------------------------------------------------------------
+Payment Receipt for Customer: Andy
+----------------------------------------------------------------------
+Item Name         Item Size         Quantity          Price             
+
+Lemon Energizer   S                 8                 $36.00            
+Cold Brew         M                 19                $66.50            
+Iced Macchiato    L                 6                 $30.00            
+Vanilla Latte     M                 24                $108.00           
+
+Membership:      No                
+Subtotal:        $240.50           
+Sales Tax:       $21.95            
+Tip:             $36.07            
+Total:           $276.57           
+
+Notes:           
