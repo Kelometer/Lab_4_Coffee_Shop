@@ -349,7 +349,7 @@ static void outputReceipt(string username, vector <int> code, vector <string> it
 	ofstream output;					// gross amount of parameters here but I cannot exactly access them otherwise;
 	output.open("receiptLog.txt");		// copies the receipt and abstracts it
 
-	output << left << "\nReceipt for: " << username << "\n" << string(33, '-') << "\n"
+	output << left << "Receipt for: " << username << "\n" << string(33, '-') << "\n"
 		<< left << setw(5) << "QTY"
 		<< setw(21) << "Item Name"
 		<< setw(18) << "Price\n" << endl;
@@ -368,7 +368,7 @@ static void outputReceipt(string username, vector <int> code, vector <string> it
 		output << left << setw(25) << "Discount:" << '-' << "$" << setw(6) << right << fixed << setprecision(2) << discountAmount << endl;
 	}
 	output << left << setw(26) << "Tip:" << "$" << setw(6) << right << fixed << setprecision(2) << tip << endl;
-	output << left << setw(26) << "Total:" << "$" << setw(6) << right << fixed << setprecision(2) << taxedTotal + tip << string(3, '\n') << endl;
+	output << left << setw(26) << "Total:" << "$" << setw(6) << right << fixed << setprecision(2) << taxedTotal + tip << endl;
 
 	output.close();
 }
