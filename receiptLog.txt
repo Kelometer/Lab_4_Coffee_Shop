@@ -1,22 +1,15 @@
----------------------------------
-Receipt for: Amberlynn
+Receipt for: Quinn
 ---------------------------------
 QTY  Item Name            Price
             
-3    S Lemon Energizer    $ 13.50
-6    M Cold Brew          $ 21.00
-4    M Lemon Energizer    $ 20.00
-1    L Cold Brew          $  4.00
-7    L Iced Macchiato     $ 35.00
-4    S Iced Macchiato     $ 16.00
-3    S Vanilla Latte      $ 12.00
-9    L Vanilla Latte      $ 45.00
----------------------------------
-Membership:      Yes               
-Subtotal:        $166.50           
-Sales Tax:       $13.67            
-Discount:       -$16.65            
-Tip:             $22.48            
-Total:           $186.00           
----------------------------------
-Notes:           That's a ton of *'s
+8    S Lemon Energizer    $ 36.00
+9    M Cold Brew          $ 31.50
+11   L Vanilla Latte      $ 55.00
+3    M Iced Macchiato     $ 13.50
+
+Membership:               Yes
+Subtotal:                 $136.00
+Sales Tax:                $ 11.17
+Discount:                -$ 13.60
+Tip:                      $ 18.36
+Total:                    $151.93
