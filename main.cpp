@@ -6,155 +6,25 @@
 #include <cmath>
 
 using namespace std;
-
-static void lowerCaseFix(char& Char) {
-	if (islower(Char)) {
-		Char = Char - 32;
-	}
-}
-static bool indexCheck(char& reqChar, vector <char>& code) {
-	bool indexFound = false;
-	for (int i = 0; i < code.size(); i++) {
-		if (reqChar == code[i]) {
-			indexFound = true;
-		}
-	}
-	if (!indexFound)
-		cout << "Error: Incorrect Code Input\n";
-	return indexFound;
-}
-static void reqCodeIndexMatch(char& reqChar, vector <char>& code, int& index, vector <int>& reqList) {
-	for (int i = 0; i < code.size(); i++) {
-		if (code[i] == reqChar) {
-			index = i;
-			reqList.push_back(index);
-		}
-	}
-
-}
-static void handleTipAmount(double& tipPercentage) {
-	if (tipPercentage > 1.0) {
-		tipPercentage /= 100;
-	}
-	else if (tipPercentage <= 0) {
-		tipPercentage = 0.00;
-	}
-}
-static void inventoryUpdate(vector <int>& inventory, vector <int>& userItemRecord, vector <int>& userQuantityRecord) {
-	for (int i = 0; i < userItemRecord.size(); i++) {		// uses itemRecord to subtract userQuantity from inventory at a specific index
-		switch (userItemRecord[i]) {
-		case 0:
-			inventory[0] -= userQuantityRecord[i];
-			break;
-		case 1:
-			inventory[1] -= userQuantityRecord[i];
-			break;
-		case 2:
-			inventory[2] -= userQuantityRecord[i];
-			break;
-		case 3:
-			inventory[3] -= userQuantityRecord[i];
-			break;
-		}
-	}
-}
-static void accessMenu(vector <string> &itemLabel, vector <double> &itemPrice1, vector <double> &itemPrice2, vector <double> &itemPrice3) {
-	ifstream input;
-	input.open("menuInfo.txt");
-
-	string label;
-	double price0, price1, price2;
-
-	// reads item info in groups of 4 and appends it to specific vectors
-	for (int i = 0; i < 4; i++) {
-		getline(input >> ws, label);
-		input >> price0;
-		input >> price1;
-		input >> price2;
-
-		itemLabel.push_back(label);
-		itemPrice1.push_back(price0);
-		itemPrice2.push_back(price1);
-		itemPrice3.push_back(price2);
-	}
-
-	input.close();
-}
-static void outputInventory(vector <int> inventory, vector <string> name) {
-	ofstream output;
-
-	output.open("inventoryLog.txt");
-
-	output << left << string(70,'-') << "\nDaily Inventory\n" << string(70, '-') << endl;
-	output<< left << setw(25) << "Item Name" << setw(18) << "Start" << setw(18) << "Change" << setw(18) << "End" << endl;
-	for (int i = 0; i < inventory.size(); i++) {
-		output << left << setw(25) << name[i] << setw(18) << 50 << setw(18) << abs(inventory[i] - 50) << setw(18) << inventory[i] << endl;
-	}
-
-	output.close();
-}
+// input validation 
+static void lowerCaseFix(char& Char);
+static bool indexCheck(char reqChar, vector <char> code);
+static void reqCodeIndexMatch(char& reqChar, vector <char>& code, int& index, vector <int>& reqList);
+// record management
+static void inventoryUpdate(vector <int>& inventory, vector <int>& userItemRecord, vector <int>& userQuantityRecord);
+static void outputInventory(vector <int> inventory, vector <string> name);
 static void outputReceipt(string username, vector <int> code, vector <string> name, vector <int> sizeRec, vector <char> size, vector <int> amount, vector <double> price, double base, double subtotal,
-	double tip, double discount, double taxedTotal, string note, bool membership ) {
-	ofstream output;					// gross amount of parameters here but I cannot exactly access them otherwise;
-	output.open("receiptLog.txt");		// copies the receipt and abstracts it
+	double tip, double discount, double taxedTotal, string note, bool membership);
+static void assignPrice(double& basetotal, double& subtotal, double& taxedTotal, double& taxAmount, double& discountAmount, double& discount, bool membership);
+// menus
+static void accessMenu(vector <string>& itemLabel, vector <double>& itemPrice1, vector <double>& itemPrice2, vector <double>& itemPrice3);
+static void displayOrderMenu(vector <char> code, vector <string> itemLabel, vector <double> itemPrice0, vector <double> itemPrice1, vector <double> itemPrice2, char checkoutFlag);
+static void displayTaxMenu(vector <string> taxName, vector <double> taxType, double subtotal);
+static void displayTipMenu(vector <char> code, vector <double> tipType, double subtotal);
+static void displayEndOfDay(double grandTotal, int customerTotal, int orderTotal, vector <int> inventory, vector <string> itemLabel);
 
-	output << left << string(33,'-') << "\nReceipt for: " << username << "\n" << string(33, '-') << "\n"
-		<< left << setw(5) << "QTY"
-		<< setw(21) << "Item Name"
-		<< setw(18) << "Price\n" << endl;
 
-	for (int i = 0; i < code.size(); i++) {
-		output<< left << setw(5) << amount[i]
-			<< setw(2) << size[sizeRec[i]] << setw(19) << name[code[i]]
-			<< "$" << setw(6) << right << fixed << setprecision(2) << price[i] * amount[i] << endl;
-	}
 
-	output << string(33, '-') << left << setw(18) << "\nMembership:" << setw(18) << (membership ? "Yes" : "No")
-		<< setw(18) << "\nSubtotal:" << "$" << setw(17) << fixed << setprecision(2) << base
-		<< setw(18) << "\nSales Tax:" << "$" << setw(17) << fixed << setprecision(2) <<  taxedTotal - subtotal;
-
-	if (membership) {
-		output << left << setw(17) << "\nDiscount:" << '-' << "$" << setw(17) << fixed << setprecision(2) << discount;
-	}
-
-	output << left << setw(18) << "\nTip:" << "$" << setw(17) << fixed << setprecision(2) << tip
-		<< setw(18) << "\nTotal:" << "$" << setw(17) << fixed << setprecision(2) << taxedTotal + tip << "\n" << string(33, '-')
-		<< setw(18) << "\nNotes:" << note << endl;
-
-	output.close();
-}
-static void createConsistentPrice(double &basetotal, double &subtotal, double &taxedTotal, double &taxAmount, double &discountAmount, double &discount, bool membership) {
-	basetotal = subtotal;		// ensures that all of my monetary variables match
-	if (membership) {
-		discountAmount = subtotal * discount;
-		subtotal -= discountAmount;
-	}
-	taxedTotal = subtotal * (1 + taxAmount);
-}
-static void createTaxMenu(vector <string> taxName, vector <double> taxType, double subtotal) {
-	cout << left << setw(25) << "Sales Tax Information" << setw(18) << "Percentage" << "Amount\n" << string(70,'-') << endl;
-
-	for (int i = 0; i < 3; i++) {
-		cout << left << setw(25) << taxName[i]
-			<< fixed << setprecision(3) << (100 * taxType[i]) << setw(13) << "%"
-			<< "$" << fixed << setprecision(2) << subtotal * taxType[i] << endl;
-	}
-}
-static void createTipMenu(vector <char> code, vector <double> tipType, double subtotal) {
-
-	cout << left << "\n" << setw(18) << "Tip Menu" << setw(18) << "Amount" << endl
-		<< left << string(30,'-') << endl;
-
-	for (int i = 0; i < tipType.size() + 1; i++) {
-		if (i <= tipType.size() - 1) {
-			cout << left << code[i] << ". " << 100 * tipType[i] << setw(13) << "%"
-				<< "$" << fixed << setprecision(2) << subtotal * (1 + tipType[i]) << endl;
-		}
-		else {
-			cout << left << code[i] << setw(2) << "." << "Other Amount" << endl;
-		}
-	}
-}
 
 int main() {
 	vector <string> itemName;
@@ -183,8 +53,6 @@ int main() {
 		itemIndex = 0,
 		sizeIndex = 0,
 		tipIndex = 0,
-		spacer = 18,
-		bigSpace = 25,
 		totalCustomers = 0,
 		totalOrders = 0;
 
@@ -200,12 +68,12 @@ int main() {
 		validInput = false;
 
 	while (dayActive) {
-		baseTotal = 0.0,
+		baseTotal = 0.0,			// all variables attached to the user
 		userSubtotal = 0.0,
 		taxedTotal = 0.0,
 		userTip = 0.0,
 		userTotal = 0.0,
-		userPoints = 0,
+		userPoints = 0,			
 		discountAmount = 0,
 		cashierNotes,
 		loopCount = 0;
@@ -217,26 +85,15 @@ int main() {
 		quantityRecord.clear();
 		priceRecord.clear();
 
-		cout << left << setw(23) << "Drink"
-			<< setw(15) << "Small (S)"
-			<< setw(15) << "Medium (M)"
-			<< setw(15) << "Large (L)" << endl;
+		displayOrderMenu(itemCode, itemName, itemSmallPrice, itemMediumPrice, itemLargePrice, checkoutCode);
 
-		for (int i = 0; i < itemCode.size() - 1; i++) {
-			cout << left << itemCode[i] << setw(2) << "." << setw(20) << itemName[i]
-				<< "$" << setw(14) << fixed << setprecision(2) << itemSmallPrice[i]
-				<< "$" << setw(14) << fixed << setprecision(2) << itemMediumPrice[i]
-				<< "$" << setw(15) << fixed << setprecision(2) << itemLargePrice[i]
-				<< endl;
-		}
-		cout << left << checkoutCode << ". Checkout\n" << endl;
-		cout << left << setw(spacer) << "Name: ";
+		cout << left << setw(18) << "Name: ";
 		getline(cin, userName);
 
 		do {
 			while (!validInput) {
 				bool earlyCheckout = false;
-				cout << "\n" << left << setw(spacer) << "Item Code:";
+				cout << "\n" << left << setw(18) << "Item Code:";
 				cin >> reqCode;
 				lowerCaseFix(reqCode);
 				if (reqCode == checkoutCode && loopCount >= 1) {
@@ -252,7 +109,7 @@ int main() {
 
 				if (indexCheck(reqCode, itemCode) && !earlyCheckout)
 					validInput = true;
-				}
+			}
 			if (userCheckout) {
 				validInput = false; // checks for breakout
 				break;
@@ -261,7 +118,7 @@ int main() {
 			validInput = false;
 
 			while (!validInput) {
-				cout << left << setw(spacer) << "Size:";
+				cout << left << setw(18) << "Size:";
 				cin >> reqSize;
 				lowerCaseFix(reqSize);
 
@@ -285,7 +142,7 @@ int main() {
 			}
 
 			while (!validInput) {
-				cout << left << setw(spacer) << "Quantity:";
+				cout << left << setw(18) << "Quantity:";
 				cin >> reqQuantity;
 
 				if (reqQuantity > 0) {
@@ -295,7 +152,7 @@ int main() {
 					loopCount++;
 				}
 				else {
-					cout << "\nError: Quantity must be a number greater than 0.\n"; 
+					cout << "\nError: Quantity must be a number greater than 0.\n";
 					cin.clear();
 					cin.ignore(numeric_limits<streamsize>::max(), '\n');	// prevents infinite loop on string input
 				}
@@ -306,7 +163,7 @@ int main() {
 
 		inventoryUpdate(shopInventory, codeRecord, quantityRecord);
 
-		cout << left << setw(spacer) << "Membership (Y/N):";
+		cout << left << setw(18) << "Membership (Y/N):";
 		cin >> reqMembership;
 		lowerCaseFix(reqMembership);
 
@@ -317,38 +174,37 @@ int main() {
 			userSubtotal += priceRecord[i] * quantityRecord[i];
 		}
 
-		createConsistentPrice(baseTotal, userSubtotal, taxedTotal, taxPercentage, discountAmount, discount, isMember);
+		assignPrice(baseTotal, userSubtotal, taxedTotal, taxPercentage, discountAmount, discount, isMember);
 
 		// receipt
-		cout << left << "\nReceipt for: " << userName << "\n" << string(33,'-') << "\n"
+		cout << left << "\nReceipt for: " << userName << "\n" << string(33, '-') << "\n"
 			<< left << setw(5) << "QTY"
-			<< setw(spacer + 3) << "Item Name"
-			<< setw(spacer) << "Price\n" << endl;
+			<< setw(21) << "Item Name"
+			<< setw(18) << "Price\n" << endl;
 
 		for (int i = 0; i < codeRecord.size(); i++) {
 			cout << left << setw(5) << quantityRecord[i]
-				<< setw(2) << itemSize[sizeRecord[i]] << setw(spacer + 1) << itemName[codeRecord[i]]
+				<< setw(2) << itemSize[sizeRecord[i]] << setw(19) << itemName[codeRecord[i]]
 				<< "$" << setw(6) << right << fixed << setprecision(2) << priceRecord[i] * quantityRecord[i] << endl;
 
 			totalOrders += quantityRecord[i];
 		}
 
-		cout << left << setw(spacer) << "\nMembership:" << setw(spacer) << (isMember ? "Yes" : "No")
-			<< setw(spacer) << "\nSubtotal:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << baseTotal;
-
-		cout << setw(spacer) << "\nSales Tax:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << userSubtotal * taxPercentage;
+		cout << left << setw(27) << "\nMembership:" << (isMember ? "Yes" : "No") << endl;
+		cout << left << setw(26) << "Subtotal:"  << "$" << setw(6) << right << setprecision(2) << baseTotal << endl;
+		cout << left << setw(26) << "Sales Tax:" << "$" << setw(6) << right << fixed << setprecision(2) << userSubtotal * taxPercentage << endl;
 
 		if (isMember) {
-			cout << left << setw(spacer - 1) << "\nDiscount:" << '-' << "$" << setw(spacer - 2) << fixed << setprecision(2) << discountAmount;
+			cout << left << setw(25) << "Discount:" << '-' << "$" << setw(6) << right << fixed << setprecision(2) << discountAmount << endl;
 		}
 
-		cout << left << setw(spacer) << "\nTotal:" << "$" << setw(spacer - 1) << fixed << setprecision(2) << taxedTotal << "\n" << endl;
+		cout << left << setw(26) << "Total:" << "$" << setw(6) << right << fixed << setprecision(2) << taxedTotal << string(3,'\n') << endl;
 
-		createTaxMenu(taxName, taxAmount, userSubtotal);
-		createTipMenu(itemCode, tipAmount, userSubtotal);
-		
+		displayTaxMenu(taxName, taxAmount, userSubtotal);
+		displayTipMenu(itemCode, tipAmount, userSubtotal);
+
 		while (!validInput) {
-			cout << left << setw(spacer + 1) << "\nTip Option:";
+			cout << left << setw(19) << "\nTip Option:";
 			cin >> reqCode;
 			lowerCaseFix(reqCode);
 
@@ -369,7 +225,7 @@ int main() {
 				validInput = true;
 				break;
 			case 'D':
-				cout << left << setw(spacer) << "\nCustom Tip:";
+				cout << left << setw(18) << "\nCustom Tip:";
 				cin >> tipMultiplier;
 				validInput = true;
 				break;
@@ -378,14 +234,19 @@ int main() {
 			}
 		}
 
-		handleTipAmount(tipMultiplier);
+		if (tipMultiplier > 1.0) {
+			tipMultiplier /= 100;
+		}
+		else if (tipMultiplier <= 0) {
+			tipMultiplier = 0.00;
+		};
 
 		userTotal = userSubtotal + (userSubtotal * tipMultiplier);
 		userTip = userTotal - userSubtotal;
 		userPoints = floor(userTotal / 3);
 
-		cout << left << setw(spacer) << "\nTotal:" << "$" << fixed << setprecision(2) << userTotal << endl;
-		cout << left << setw(spacer) << "Loyalty Points:";
+		cout << left << setw(18) << "\nTotal:" << "$" << fixed << setprecision(2) << userTotal << endl;
+		cout << left << setw(18) << "Loyalty Points:";
 
 		if (userPoints > 0) {
 			cout << string(userPoints, '*') << endl;
@@ -403,7 +264,7 @@ int main() {
 
 		outputReceipt(userName, codeRecord, itemName, sizeRecord, itemSize, quantityRecord, priceRecord, baseTotal, userSubtotal, userTip, discountAmount, taxedTotal, cashierNotes, isMember);
 
-		cout << left << setw(bigSpace) << "\nNew Customer (Y/N):";
+		cout << left << setw(25) << "\nNew Customer (Y/N):";
 		cin >> reqCode;
 		lowerCaseFix(reqCode);
 
@@ -417,18 +278,179 @@ int main() {
 		}
 	}
 
-	cout << left << "\n" << string(70, '-') << "\nDaily Shop Audit\n" << string(70, '-') << "\n" << endl;
-	cout << left << setw(bigSpace) << "Total Customers:" << right << totalCustomers << endl;
-	cout << left << setw(bigSpace) << "Items Sold:" << right << totalOrders << endl;
-	cout << left << setw(bigSpace - 1) << "Grand Total Sales:" << right << '$' << fixed << setprecision(2) << grandTotalSales << "\n" << endl;
-
-	cout << left << string(70, '-') << "\nDaily Inventory\n" << string(70, '-') << endl;
-	cout << left << setw(bigSpace) << "Item Name" << setw(spacer) << "Start" << setw(spacer) << "Change" << setw(spacer) << "End" << endl;
-	for (int i = 0; i < shopInventory.size(); i++) {
-		cout << left << setw(bigSpace) << itemName[i] << setw(spacer) << 50 << setw(spacer) << abs(shopInventory[i] - 50) << setw(spacer) << shopInventory[i] << endl;
-	}
+	displayEndOfDay(grandTotalSales, totalCustomers, totalOrders, shopInventory, itemName);
 
 	outputInventory(shopInventory, itemName);
 
 	return 0;
+}
+
+static void lowerCaseFix(char& Char) {
+	if (islower(Char)) {
+		Char = Char - 32;
+	}
+}
+static bool indexCheck(char reqChar, vector <char> code) {
+	bool indexFound = false;
+	for (int i = 0; i < code.size(); i++) {
+		if (reqChar == code[i]) {
+			indexFound = true;
+		}
+	}
+	if (!indexFound)
+		cout << "Error: Incorrect Code Input\n";
+	return indexFound;
+}
+static void reqCodeIndexMatch(char& reqChar, vector <char>& code, int& index, vector <int>& reqList) {
+	for (int i = 0; i < code.size(); i++) {
+		if (code[i] == reqChar) {
+			index = i;
+			reqList.push_back(index);
+		}
+	}
+
+}
+
+static void inventoryUpdate(vector <int>& inventory, vector <int>& userItemRecord, vector <int>& userQuantityRecord) {
+	for (int i = 0; i < userItemRecord.size(); i++) {		// uses itemRecord to subtract userQuantity from inventory at a specific index
+		switch (userItemRecord[i]) {
+		case 0:
+			inventory[0] -= userQuantityRecord[i];
+			break;
+		case 1:
+			inventory[1] -= userQuantityRecord[i];
+			break;
+		case 2:
+			inventory[2] -= userQuantityRecord[i];
+			break;
+		case 3:
+			inventory[3] -= userQuantityRecord[i];
+			break;
+		}
+	}
+}
+static void outputInventory(vector <int> inventory, vector <string> name) {
+	ofstream output;
+
+	output.open("inventoryLog.txt");
+
+	output << left << string(70, '-') << "\nDaily Inventory\n" << string(70, '-') << endl;
+	output << left << setw(25) << "Item Name" << setw(18) << "Start" << setw(18) << "Change" << setw(18) << "End" << endl;
+	for (int i = 0; i < inventory.size(); i++) {
+		output << left << setw(25) << name[i] << setw(18) << 50 << setw(18) << abs(inventory[i] - 50) << setw(18) << inventory[i] << endl;
+	}
+
+	output.close();
+}
+static void outputReceipt(string username, vector <int> code, vector <string> itemLabel, vector <int> sizeIndex, 
+	vector <char> size, vector <int> amount, vector <double> price, double base, double subtotal,
+	double tip, double discountAmount, double taxedTotal, string note, bool membership) {
+
+	ofstream output;					// gross amount of parameters here but I cannot exactly access them otherwise;
+	output.open("receiptLog.txt");		// copies the receipt and abstracts it
+
+	output << left << "\nReceipt for: " << username << "\n" << string(33, '-') << "\n"
+		<< left << setw(5) << "QTY"
+		<< setw(21) << "Item Name"
+		<< setw(18) << "Price\n" << endl;
+
+	for (int i = 0; i < code.size(); i++) {
+		output << left << setw(5) << amount[i]
+			<< setw(2) << size[sizeIndex[i]] << setw(19) << itemLabel[code[i]]
+			<< "$" << setw(6) << right << fixed << setprecision(2) << price[i] * amount[i] << endl;
+	}
+
+	output << left << setw(27) << "\nMembership:" << (membership ? "Yes" : "No") << endl;
+	output << left << setw(26) << "Subtotal:" << "$" << setw(6) << right << setprecision(2) << base << endl;
+	output << left << setw(26) << "Sales Tax:" << "$" << setw(6) << right << fixed << setprecision(2) << abs(subtotal - taxedTotal) << endl;
+
+	if (membership) {
+		output << left << setw(25) << "Discount:" << '-' << "$" << setw(6) << right << fixed << setprecision(2) << discountAmount << endl;
+	}
+	output << left << setw(26) << "Tip:" << "$" << setw(6) << right << fixed << setprecision(2) << tip << endl;
+	output << left << setw(26) << "Total:" << "$" << setw(6) << right << fixed << setprecision(2) << taxedTotal + tip << string(3, '\n') << endl;
+
+	output.close();
+}
+static void assignPrice(double& basetotal, double& subtotal, double& taxedTotal, double& taxAmount, double& discountAmount, double& discount, bool membership) {
+	basetotal = subtotal;		// ensures that all of my monetary variables match
+	if (membership) {
+		discountAmount = subtotal * discount;
+		subtotal -= discountAmount;
+	}
+	taxedTotal = subtotal * (1 + taxAmount);
+}
+
+static void accessMenu(vector <string>& itemLabel, vector <double>& itemPrice1, vector <double>& itemPrice2, vector <double>& itemPrice3) {
+	ifstream input;
+	input.open("menuInfo.txt");
+
+	string label;
+	double price0, price1, price2;
+
+	// reads item info in groups of 4 and appends it to specific vectors
+	for (int i = 0; i < 4; i++) {
+		getline(input >> ws, label);
+		input >> price0;
+		input >> price1;
+		input >> price2;
+
+		itemLabel.push_back(label);
+		itemPrice1.push_back(price0);
+		itemPrice2.push_back(price1);
+		itemPrice3.push_back(price2);
+	}
+
+	input.close();
+}
+static void displayOrderMenu(vector <char> code, vector <string> itemLabel, vector <double> itemPrice0, vector <double> itemPrice1, vector <double> itemPrice2, char checkoutFlag) {
+	cout << left << setw(23) << "Drink"
+		<< setw(15) << "Small (S)"
+		<< setw(15) << "Medium (M)"
+		<< setw(15) << "Large (L)" << endl;
+
+	for (int i = 0; i < itemLabel.size(); i++) {
+		cout << left << code[i] << setw(2) << "." << setw(20) << itemLabel[i]
+			<< "$" << setw(14) << fixed << setprecision(2) << itemPrice0[i]
+			<< "$" << setw(14) << fixed << setprecision(2) << itemPrice1[i]
+			<< "$" << setw(15) << fixed << setprecision(2) << itemPrice2[i]
+			<< endl;
+	}
+	cout << left << checkoutFlag << ". Checkout\n" << endl;
+}
+static void displayTaxMenu(vector <string> taxName, vector <double> taxType, double subtotal) {
+	cout << left << setw(25) << "Sales Tax Information" << setw(18) << "Percentage" << "Amount\n" << string(70, '-') << endl;
+
+	for (int i = 0; i < 3; i++) {
+		cout << left << setw(25) << taxName[i]
+			<< fixed << setprecision(3) << (100 * taxType[i]) << setw(13) << "%"
+			<< "$" << fixed << setprecision(2) << subtotal * taxType[i] << endl;
+	}
+}
+static void displayTipMenu(vector <char> code, vector <double> tipType, double subtotal) {
+
+	cout << left << "\n" << setw(18) << "Tip Menu" << setw(18) << "Amount" << endl
+		<< left << string(30, '-') << endl;
+
+	for (int i = 0; i < tipType.size() + 1; i++) {
+		if (i <= tipType.size() - 1) {
+			cout << left << code[i] << ". " << 100 * tipType[i] << setw(8) << "%"
+				<< "$" << fixed << setprecision(2) << subtotal * (1 + tipType[i]) << endl;
+		}
+		else {
+			cout << left << code[i] << setw(2) << "." << "Other Amount" << endl;
+		}
+	}
+}
+static void displayEndOfDay(double grandTotal, int customerTotal, int orderTotal, vector <int> inventory, vector <string> itemLabel) {
+	cout << left << "\n" << string(70, '-') << "\nDaily Shop Audit\n" << string(70, '-') << "\n" << endl;
+	cout << left << setw(25) << "Total Customers:" << right << customerTotal << endl;
+	cout << left << setw(25) << "Items Sold:" << right << orderTotal << endl;
+	cout << left << setw(24) << "Grand Total Sales:" << right << '$' << fixed << setprecision(2) << grandTotal << "\n" << endl;
+
+	cout << left << string(70, '-') << "\nDaily Inventory\n" << string(70, '-') << endl;
+	cout << left << setw(25) << "Item Name" << setw(18) << "Start" << setw(18) << "Change" << setw(18) << "End" << endl;
+	for (int i = 0; i < inventory.size(); i++) {
+		cout << left << setw(25) << itemLabel[i] << setw(18) << 50 << setw(18) << abs(inventory[i] - 50) << setw(18) << inventory[i] << endl;
+	}
 }
