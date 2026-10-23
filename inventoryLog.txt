@@ -2,7 +2,7 @@
 Daily Inventory
 ----------------------------------------------------------------------
 Item Name                Start             Change            End               
-Lemon Energizer          50                7                 43                
-Cold Brew                50                7                 43                
-Vanilla Latte            50                12                38                
-Iced Macchiato           50                11                39                
+Lemon Energizer          50                11                39                
+Cold Brew                50                9                 41                
+Vanilla Latte            50                18                32                
+Iced Macchiato           50                3                 47                
